@@ -119,6 +119,129 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &381008131
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 381008132}
+  - component: {fileID: 381008133}
+  - component: {fileID: 381008134}
+  m_Layer: 0
+  m_Name: ASCII_Interactivo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &381008132
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 381008131}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: -0.05827, y: 0.249, z: -0.138}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 915657456}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &381008133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 381008131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8b3a541c46694e40810d77a79896213, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AsciiLayer
+  asciiText: {fileID: 4900000, guid: b5ed960d1477c824689b8d45aa8ad535, type: 3}
+  colorSource: {fileID: 2800000, guid: 8b50c3adb2e3ea54a80dc4428cb0649f, type: 3}
+  sourceHasWhiteBackground: 1
+  colorLift: 0
+  arCamera: {fileID: 746777070}
+  glyphsAtlasName: glyphs
+  glyphCharsName: glyph_chars
+  targetWidth: 0.3
+  targetHeight: 0.54
+  glyphFill: 1
+  originUV: {x: 0.41, y: 0.6}
+  appearDuration: 2
+  originBias: 0.6
+  flashDuration: 0.01
+  flickerSpeed: 3
+  touchRadius: 0.12
+  pushSpeed: 0.35
+  drag: 2.5
+  spinSpeed: 240
+  scatteredFractionToReturn: 0.7
+  idleSecondsToReturn: 6
+  returnTime: 1.2
+  returnSpring: 6
+  holdTime: 0.6
+  disappearDuration: 1.5
+  useDarkOverlay: 1
+  overlayMaxAlpha: 0.85
+  onAsciiStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  onIdleReturn:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &381008134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 381008131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8b3a541c46694e40810d77a79896213, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AsciiLayer
+  asciiText: {fileID: 4900000, guid: b5ed960d1477c824689b8d45aa8ad535, type: 3}
+  colorSource: {fileID: 0}
+  sourceHasWhiteBackground: 1
+  colorLift: 0.25
+  arCamera: {fileID: 0}
+  glyphsAtlasName: glyphs
+  glyphCharsName: glyph_chars
+  targetWidth: 0.3
+  targetHeight: 0.54
+  glyphFill: 1
+  originUV: {x: 0.41, y: 0.6}
+  appearDuration: 2
+  originBias: 0.6
+  flashDuration: 0.4
+  flickerSpeed: 18
+  touchRadius: 0.12
+  pushSpeed: 0.35
+  drag: 2.5
+  spinSpeed: 240
+  scatteredFractionToReturn: 0.7
+  idleSecondsToReturn: 6
+  returnTime: 1.2
+  returnSpring: 6
+  holdTime: 0.6
+  disappearDuration: 1.5
+  useDarkOverlay: 1
+  overlayMaxAlpha: 0.85
+  onAsciiStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  onIdleReturn:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,6 +688,7 @@ Transform:
   m_Children:
   - {fileID: 1676465682}
   - {fileID: 1508263369}
+  - {fileID: 381008132}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!114 &915657457
@@ -603,7 +727,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1508263369
 RectTransform:
   m_ObjectHideFlags: 0
@@ -611,7 +735,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1508263368}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: -1.66}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -620,7 +744,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2.274, y: 0.023}
+  m_AnchoredPosition: {x: 2.265, y: 0.16}
   m_SizeDelta: {x: 10, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1508263370
@@ -643,7 +767,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Sample text
+  m_text: "PRUEBA ASCII  \t"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a8b61bb4bdc15ca47a2287700eaf4405, type: 2}
   m_sharedMaterial: {fileID: 5770326254617801027, guid: a8b61bb4bdc15ca47a2287700eaf4405, type: 2}
@@ -652,8 +776,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -670,14 +794,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 1
-  m_fontSizeBase: 1
+  m_fontSize: 0.03
+  m_fontSizeBase: 0.03
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -709,7 +833,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 2.5325766, y: 0.4791274, z: 7.076808, w: 3.79917}
+  m_margin: {x: 2.5753407, y: 0.49938512, z: 7.099434, w: 3.8684757}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -781,6 +905,7 @@ GameObject:
   - component: {fileID: 1676465683}
   - component: {fileID: 1676465686}
   - component: {fileID: 1676465687}
+  - component: {fileID: 1676465688}
   m_Layer: 0
   m_Name: VideoQuad
   m_TagString: Untagged
@@ -937,6 +1062,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.69051355, y: 0.30695957, z: 6.1232336e-17}
   m_Center: {x: -0.076406196, y: 0.15777105, z: 0}
+--- !u!114 &1676465688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1676465681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4104e1b73c5df41a56e9c8abe6975d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VideoToAsciiTransition
+  videoPlayer: {fileID: 1676465686}
+  videoQuad: {fileID: 1676465681}
+  asciiLayer: {fileID: 381008131}
+  zonaInteractiva: {fileID: 1676465687}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

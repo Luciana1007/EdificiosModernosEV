@@ -24,7 +24,7 @@ public class VideotoASCII : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        if (textoASCII) !! null;
+        if (textoASCII != null)
         {
             textoASCII.text = "";
             textoASCII.gameObject.SetActive(false);
@@ -35,70 +35,85 @@ public class VideotoASCII : MonoBehaviour
     void Update()
     {
         if (activado || arCamera == null)
-        return;
+            return;
 
         if (Input.touchCount > 0 &&
-        Input.GetTouch(0).phase == TouchPhase.Began)
+            Input.GetTouch(0).phase == TouchPhase.Began)
 
         {
             DetectarToque(Input.GetTouch(0).position);
         }
 
-        if (UNITY_EDITOR)
+        #if UNITY_EDITOR
         if (Input.GetMouseButtonDown(0))
         {
             DetectarToque(Input.mousePosition);
         }
-        endif;
+        #endif
     }
 
     void DetectarToque(Vector2 posicion)
     {
+        Debug.Log("Toque detectado en pantalla");
+        
         Ray rayo = arCamera.ScreenPointToRay(posicion);
+        RaycastHit impacto;
 
-        if (Physics.Raycast(rayo, out RaycastHit impacto))
+        if (Physics.Raycast(rayo, out impacto))
         {
-            if (impacto.collider.gameObject == gameObject)
-            {
-                activado = true;
+            Debug.Log("Raycast detecto: " + 
+                impacto.collider.gameObject.name);
 
-                if (videoPlayer != null)
-                {
-                    videoPlayer.Stop();
-                }
-            
-                if (archivoASCII != null && textoASCII != null)
-                {
-                    textoASCII.gameObject.SetActive(true);
-                    StartCoroutine(MostrarASCII());
-                }
-                else
+            if (impacto.collider.gameObject == gameObject || 
+                impacto.collider.transform.IsChildOf(transform))
+            {
+                Debug.Log("Toque sobre el objeto correcto");
+                
+                if (archivoASCII == null || textoASCII == null)
                 {
                     Debug.LogError(
-                        "Falta asignar EspacioTextoAscii o ASCII."
+                        "Asigna Archivo ASCII y Texto ASCII en el Inspector"
                     );
+                    return;
                 }
+
+                if (videoPlayer != null)
+                    videoPlayer.Stop();
+                    Debug.Log("video detenido");
+                
+                
+                textoASCII.gameObject.SetActive(true);
+
+                Debug.Log("Texto ASCII activado");
+
+                StartCoroutine(MostrarASCII());
 
                 gameObject.SetActive(false);
             }
+        }
+        else
+        {
+            Debug.Log("El Raycast no detecto ningun objeto");
         }
 
     }
 
     IEnumerator MostrarASCII()
     {
+        Debug.Log("Comienza MostrarASCII");
+
         string contenido = archivoASCII.text;
 
-        textoASCII.text = "";
+        
+        Debug.Log("Caracteres del archivo:" + contenido.Length);
 
-        foreach (char caracter in contenido)
-        {
-            textoASCII.text += caracter;
+        textoASCII.gameObject.SetActive(true);
+        textoASCII.text = contenido;
+        textoASCII.color = Color.white;
 
-            yield return new WaitForSeconds(
-                Mathf.Max(0.001f, intervaloCaracteres)
-            );
+        Debug.Log("Texto asignado: " + textoASCII.text.Length
+                    + "caracteres");
 
-        }
+        yield break;
     }
 }
