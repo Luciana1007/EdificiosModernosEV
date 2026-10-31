@@ -41,8 +41,8 @@ public class AsciiLayer : MonoBehaviour
     [Tooltip("0 = se expande ordenado desde la torre. 1 = totalmente al azar.")]
     [Range(0f, 1f)] public float originBias = 0.6f;
     [Tooltip("Cuánto dura el parpadeo de cada letra antes de asentarse.")]
-    public float flashDuration = 0.4f;
-    public float flickerSpeed = 18f;
+    public float flashDuration = 0.15f;
+    public float flickerSpeed = 5f;
 
     // ───────────────────────── DISPERSIÓN ─────────────────────────
     [Header("Dispersión con el dedo")]
@@ -138,9 +138,11 @@ public class AsciiLayer : MonoBehaviour
     {
         if (!useDarkOverlay) return;
         var go = new GameObject("DarkOverlay");
+        float asciiScale = 1.35f;
+
         go.transform.SetParent(transform, false);
         go.transform.localPosition = new Vector3(0f, 0f, -0.0005f);
-        go.transform.localScale = new Vector3(targetWidth * 1.02f, targetHeight * 1.02f, 1f);
+        go.transform.localScale = new Vector3(targetWidth * asciiScale * 1.02f, targetHeight * asciiScale * 1.02f, 1f);
 
         Texture2D w = Texture2D.whiteTexture;
         overlay = go.AddComponent<SpriteRenderer>();
@@ -174,8 +176,11 @@ public class AsciiLayer : MonoBehaviour
         if (lines.Count > 0 && lines[lines.Count - 1].Length == 0) lines.RemoveAt(lines.Count - 1);
         rows = lines.Count;
         cols = lines.Max(l => l.Length);
-        float cellW = targetWidth / cols;
-        float cellH = targetHeight / rows;
+        
+        float asciiScale = 1.35f;
+
+        float cellW = (targetWidth * asciiScale) / cols;
+        float cellH = (targetHeight * asciiScale) / rows;
 
         Vector2 originLocal = new Vector2((originUV.x - 0.5f) * targetWidth, (originUV.y - 0.5f) * targetHeight);
         float maxDist = 0.0001f;
@@ -208,7 +213,7 @@ public class AsciiLayer : MonoBehaviour
                     id = cells.Count,
                     t = go.transform,
                     sr = sr,
-                    home = new Vector2((u - 0.5f) * targetWidth, (v - 0.5f) * targetHeight),
+                    home = new Vector2((u - 0.5f) * targetWidth *asciiScale, (v - 0.5f) * targetHeight * asciiScale),
                     baseColor = Color.Lerp(SampleColor(u, v), Color.white, colorLift)
                 };
                 go.transform.localPosition = Home3(cell);
@@ -351,18 +356,12 @@ public class AsciiLayer : MonoBehaviour
     {
         foreach (var c in cells)
         {
-            float t = stateTime - c.appearTime;
-            if (t < 0f) { c.sr.color = Color.clear; continue; }          // todavía no le toca
-            if (t >= flashDuration) { c.sr.color = c.baseColor; continue; } // ya se asentó
-
-            // destello: parpadea y brilla casi blanca, y se va asentando en su color
-            float flash = 1f - t / flashDuration;
-            c.sr.color = Flicker(c.id, t) ? Color.Lerp(c.baseColor, Color.white, flash) : Color.clear;
+            c.sr.color = c.baseColor;
         }
 
-        SetOverlayAlpha(Mathf.Clamp01(stateTime / appearDuration) * overlayMaxAlpha);
+        SetOverlayAlpha(overlayMaxAlpha);
 
-        if (stateTime >= appearDuration + flashDuration) SetState(State.Interactive);
+        SetState(State.Interactive);
     }
 
     void UpdateInteractive()
@@ -402,14 +401,20 @@ public class AsciiLayer : MonoBehaviour
         foreach (var c in cells)
         {
             float t = stateTime - c.disappearTime;
-            if (t < 0f) continue;                                        // todavía visible
-            if (t >= flashDuration) { c.sr.color = Color.clear; continue; } // ya se apagó
-            c.sr.color = Flicker(c.id, t) ? Color.Lerp(c.baseColor, Color.white, 0.7f) : Color.clear;
+            if (t < 0f)
+            {
+                c.sr.color = c.baseColor;
+                continue;
+            }
+
+            float fade = Mathf.Clamp01(t / flashDuration);
+            c.sr.color = Color.Lerp(c.baseColor, Color.clear, fade);
         }
 
         SetOverlayAlpha((1f - Mathf.Clamp01(stateTime / disappearDuration)) * overlayMaxAlpha);
 
-        if (stateTime >= disappearDuration + flashDuration) SetState(State.Hidden);
+        if (stateTime >= disappearDuration + flashDuration) 
+            SetState(State.Hidden);
     }
 
     // ───────────────────────── DEDO ─────────────────────────

@@ -146,7 +146,7 @@ Transform:
   m_GameObject: {fileID: 381008131}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.05827, y: 0.249, z: -0.138}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -173,7 +173,7 @@ MonoBehaviour:
   glyphCharsName: glyph_chars
   targetWidth: 0.3
   targetHeight: 0.54
-  glyphFill: 1
+  glyphFill: 1.2
   originUV: {x: 0.41, y: 0.6}
   appearDuration: 2
   originBias: 0.6
@@ -184,7 +184,7 @@ MonoBehaviour:
   drag: 2.5
   spinSpeed: 240
   scatteredFractionToReturn: 0.7
-  idleSecondsToReturn: 6
+  idleSecondsToReturn: 999
   returnTime: 1.2
   returnSpring: 6
   holdTime: 0.6
@@ -1078,6 +1078,7 @@ MonoBehaviour:
   videoQuad: {fileID: 1676465681}
   asciiLayer: {fileID: 381008131}
   zonaInteractiva: {fileID: 1676465687}
+  camaraRaycast: {fileID: 746777070}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

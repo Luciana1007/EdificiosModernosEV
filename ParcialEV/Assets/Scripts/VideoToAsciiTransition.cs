@@ -1,6 +1,8 @@
 
 using UnityEngine;
 using UnityEngine.Video;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 public class VideoToAsciiTransition : MonoBehaviour
 {
@@ -13,6 +15,9 @@ public class VideoToAsciiTransition : MonoBehaviour
 
     [Header("Zona de interaccion")]
     [SerializeField] private Collider zonaInteractiva;
+
+    [Header("Camara de Vuforia")]
+    [SerializeField] private Camera camaraRaycast;
 
     private bool transicionRealizada = false;
 
@@ -31,10 +36,20 @@ public class VideoToAsciiTransition : MonoBehaviour
             return;
         }
 
+        if (camaraRaycast == null)
+        {
+            Debug.LogError("No se encontro la camara para detectar el toque");
+
+            enabled = false;
+            return;
+        }
+
         videoPlayer.playOnAwake = false;
 
         videoQuad.SetActive(true);
         asciiLayer.SetActive(false);
+
+        Debug.Log("Transicion preparada correctamente");
     }
 
     private void Start()
@@ -47,35 +62,44 @@ public class VideoToAsciiTransition : MonoBehaviour
         if (transicionRealizada)
             return;
 
-        if (Input.touchCount > 0 &&
-            Input.GetTouch(0).phase == TouchPhase.Began)
+        if (Touchscreen.current != null &&
+            Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
         {
-            DetectarToque(Input.GetTouch(0).position);
+            Vector2 posicion = Touchscreen.current.primaryTouch.position.ReadValue();
+
+            DetectarToque(posicion);
         }
 
-        // Permite probar tambien con el clic del mouse
-        if (Input.GetMouseButtonDown(0))
+        if (Mouse.current != null && 
+            Mouse.current.leftButton.wasPressedThisFrame)
         {
-            DetectarToque(Input.mousePosition);
+            DetectarToque(Mouse.current.position.ReadValue()
+            );
         }
     }
 
     private void DetectarToque(Vector2 posicionPantalla)
     {
-        Camera camara = Camera.main;
-
-        if (camara == null)
-            return;
-
-        Ray rayo = camara.ScreenPointToRay(posicionPantalla);
+        Ray rayo = camaraRaycast.ScreenPointToRay(posicionPantalla);
+        
         RaycastHit impacto;
-
+        
         if (Physics.Raycast(rayo, out impacto))
         {
+            Debug.Log("Collider tocado:" + impacto.collider.name);
+
             if (impacto.collider == zonaInteractiva)
             {
-                ActivarASCII();
+            ActivarASCII();
             }
+            else
+            {
+                Debug.Log("El toque no alcanzo la zona interactiva");
+            }
+        }
+        else
+        {
+            Debug.Log("El toque no alcanzo ningun collider");
         }
     }
 
