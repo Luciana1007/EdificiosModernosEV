@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 
 
@@ -29,7 +30,13 @@ public class AsciiLayer : MonoBehaviour
     [Header("Tamaño físico del target (los mismos valores que en el Image Target de Vuforia, en metros)")]
     public float targetWidth = 0.30f;
     public float targetHeight = 0.54f;
-    [Range(0.5f, 1.3f)] public float glyphFill = 1f;
+
+    [Header("Tamaño de los caracteres")]
+    [Tooltip("Escala del ASCII respecto al target. 1 = igual que la pintura.")]
+    public float asciiScale = 1.35f;
+    [Tooltip("Agrupa NxN caracteres del .txt en uno. 1 = original. 2 = letras el doble de grandes y 4 veces menos objetos.")]
+    [Range(1, 6)] public int gridStep = 2;
+    [Range(0.5f, 2f)] public float glyphFill = 1f;
 
     [Header("Origen del destello (0-1, desde abajo a la izquierda). Es la posición de la torre.")]
     public Vector2 originUV = new Vector2(0.41f, 0.60f);
@@ -93,7 +100,7 @@ public class AsciiLayer : MonoBehaviour
         public bool scattered;
     }
 
-    const float GlyphZ = -0.001f;   // las letras apenas por encima de la pintura (hacia el usuario)
+    const float GlyphZ = -0.005f;   // las letras apenas por encima de la pintura (hacia el usuario)
 
     readonly List<Cell> cells = new List<Cell>();
     SpriteRenderer overlay;
@@ -138,10 +145,9 @@ public class AsciiLayer : MonoBehaviour
     {
         if (!useDarkOverlay) return;
         var go = new GameObject("DarkOverlay");
-        float asciiScale = 1.35f;
 
         go.transform.SetParent(transform, false);
-        go.transform.localPosition = new Vector3(0f, 0f, -0.0005f);
+        go.transform.localPosition = new Vector3(0f, 0f, -0.0025f);
         go.transform.localScale = new Vector3(targetWidth * asciiScale * 1.02f, targetHeight * asciiScale * 1.02f, 1f);
 
         Texture2D w = Texture2D.whiteTexture;
@@ -159,7 +165,6 @@ public class AsciiLayer : MonoBehaviour
             return;
         }
 
-        // 1) Sprites de las letras + qué carácter es cada uno
         var sprites = Resources.LoadAll<Sprite>(glyphsAtlasName).OrderBy(SpriteIndex).ToArray();
         var charsAsset = Resources.Load<TextAsset>(glyphCharsName);
         if (sprites.Length == 0 || charsAsset == null)
@@ -171,13 +176,12 @@ public class AsciiLayer : MonoBehaviour
         var map = new Dictionary<char, Sprite>();
         for (int i = 0; i < chars.Length && i < sprites.Length; i++) map[chars[i]] = sprites[i];
 
-        // 2) Grilla del ASCII
         var lines = asciiText.text.Replace("\r", "").Split('\n').ToList();
         if (lines.Count > 0 && lines[lines.Count - 1].Length == 0) lines.RemoveAt(lines.Count - 1);
-        rows = lines.Count;
-        cols = lines.Max(l => l.Length);
-        
-        float asciiScale = 1.35f;
+
+        // Grilla efectiva: se agrupan bloques de gridStep x gridStep
+        rows = Mathf.CeilToInt(lines.Count / (float)gridStep);
+        cols = Mathf.CeilToInt(lines.Max(l => l.Length) / (float)gridStep);
 
         float cellW = (targetWidth * asciiScale) / cols;
         float cellH = (targetHeight * asciiScale) / rows;
@@ -185,17 +189,16 @@ public class AsciiLayer : MonoBehaviour
         Vector2 originLocal = new Vector2((originUV.x - 0.5f) * targetWidth, (originUV.y - 0.5f) * targetHeight);
         float maxDist = 0.0001f;
 
-        // 3) Una celda por cada carácter visible
         for (int r = 0; r < rows; r++)
         {
-            for (int col = 0; col < lines[r].Length; col++)
+            for (int col = 0; col < cols; col++)
             {
-                char ch = lines[r][col];
-                if (ch == ' ' || ch == '\t') continue;
+                char ch = DominantChar(lines, r * gridStep, col * gridStep);
+                if (ch == ' ') continue;
                 if (!map.TryGetValue(ch, out Sprite sp)) continue;
 
-                float u = (col + 0.5f) / cols;          // 0 izquierda -> 1 derecha
-                float v = 1f - (r + 0.5f) / rows;       // 0 abajo -> 1 arriba
+                float u = (col + 0.5f) / cols;
+                float v = 1f - (r + 0.5f) / rows;
 
                 var go = new GameObject("c");
                 go.transform.SetParent(transform, false);
@@ -213,7 +216,7 @@ public class AsciiLayer : MonoBehaviour
                     id = cells.Count,
                     t = go.transform,
                     sr = sr,
-                    home = new Vector2((u - 0.5f) * targetWidth *asciiScale, (v - 0.5f) * targetHeight * asciiScale),
+                    home = new Vector2((u - 0.5f) * targetWidth * asciiScale, (v - 0.5f) * targetHeight * asciiScale),
                     baseColor = Color.Lerp(SampleColor(u, v), Color.white, colorLift)
                 };
                 go.transform.localPosition = Home3(cell);
@@ -223,7 +226,30 @@ public class AsciiLayer : MonoBehaviour
             }
         }
 
-        foreach (var c in cells) c.dist01 /= maxDist;   // normalizado 0-1
+        foreach (var c in cells) c.dist01 /= maxDist;
+    }
+
+    // Devuelve el carácter más frecuente del bloque; si más de la mitad es fondo, lo deja vacío.
+    char DominantChar(List<string> lines, int r0, int c0)
+    {
+        var counts = new Dictionary<char, int>();
+        int total = 0, nonBlank = 0;
+        for (int r = r0; r < r0 + gridStep && r < lines.Count; r++)
+            for (int c = c0; c < c0 + gridStep && c < lines[r].Length; c++)
+            {
+                total++;
+                char ch = lines[r][c];
+                if (ch == ' ' || ch == '\t') continue;
+                nonBlank++;
+                counts.TryGetValue(ch, out int n);
+                counts[ch] = n + 1;
+            }
+        if (nonBlank == 0 || nonBlank * 2 < total) return ' ';
+        char best = ' ';
+        int bestN = 0;
+        foreach (var kv in counts)
+            if (kv.Value > bestN) { best = kv.Key; bestN = kv.Value; }
+        return best;
     }
 
     static int SpriteIndex(Sprite s)
@@ -354,14 +380,18 @@ public class AsciiLayer : MonoBehaviour
     // ───────────────────────── ESTADOS ─────────────────────────
     void UpdateAppearing()
     {
+        SetOverlayAlpha(Mathf.Clamp01(stateTime / (appearDuration * 0.5f)) * overlayMaxAlpha);
+
         foreach (var c in cells)
         {
-            c.sr.color = c.baseColor;
+            float a = Mathf.Clamp01((stateTime - c.appearTime) / Mathf.Max(0.05f, flashDuration));
+            Color col = c.baseColor;
+            col.a = a;
+            c.sr.color = col;
         }
 
-        SetOverlayAlpha(overlayMaxAlpha);
-
-        SetState(State.Interactive);
+        if (stateTime >= appearDuration + flashDuration)
+            SetState(State.Interactive);
     }
 
     void UpdateInteractive()
@@ -420,11 +450,23 @@ public class AsciiLayer : MonoBehaviour
     // ───────────────────────── DEDO ─────────────────────────
     void HandleTouch()
     {
-        if (!Input.GetMouseButton(0)) return;
+        Vector2 screenPos = Vector2.zero;
+        bool pressed = false;
+
+        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
+        {
+            pressed = true;
+            screenPos = Touchscreen.current.primaryTouch.position.ReadValue();
+        }
+        else if (Mouse.current != null && Mouse.current.leftButton.isPressed)
+        {
+            pressed = true;
+            screenPos = Mouse.current.position.ReadValue();
+        }
+        if (!pressed) return;
         idleTimer = 0f;
 
-        // Del toque en pantalla a un punto sobre el plano de la capa
-        Ray ray = arCamera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = arCamera.ScreenPointToRay(screenPos);
         var plane = new Plane(transform.forward, transform.position);
         if (!plane.Raycast(ray, out float enter)) return;
         Vector3 local3 = transform.InverseTransformPoint(ray.GetPoint(enter));
@@ -439,7 +481,7 @@ public class AsciiLayer : MonoBehaviour
             float dist = d.magnitude;
             if (dist > radius) continue;
 
-            float k = 1f - dist / radius;   // más cerca del dedo, más fuerte
+            float k = 1f - dist / radius;
             Vector2 dir = dist > 1e-5f ? d / dist : Random.insideUnitCircle.normalized;
             c.vel += (dir + Random.insideUnitCircle * 0.5f) * push * k;
 

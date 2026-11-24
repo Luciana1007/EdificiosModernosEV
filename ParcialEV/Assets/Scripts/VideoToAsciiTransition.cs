@@ -113,6 +113,8 @@ public class VideoToAsciiTransition : MonoBehaviour
         videoPlayer.Stop();
         videoQuad.SetActive(false);
         asciiLayer.SetActive(true);
+        var capa = asciiLayer.GetComponent<AsciiLayer>();
+        if (capa != null) capa.ShowAscii();
 
         Debug.Log("Toque detectado: activando ASCII.");
     }
